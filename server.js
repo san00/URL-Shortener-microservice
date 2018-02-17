@@ -1,77 +1,79 @@
-// server.js
-// where your node app starts
-
 // init project
-var express = require('express');
-var app = express();
-var mongoose = require('mongoose');
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
 
-//i've added this
 const MongoClient = require('mongodb').MongoClient;
-const appUrl = process.env.MONGOLAB_URI;  
- 
-
+const appUrl = process.env.MONGOLAB_URI;
 const shortUrl = require('./theShortenedUrl');
-const bodyParser = require('body-parser');
-const request = require('request');
-var shortID = require('short-id-gen')
-var cors = require('cors')
-// app.use(cors())
-app.use(bodyParser.json())
-var data; 
+const shortID = require('short-id-gen')
 
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log(" we are connected! hoorah");
-});
-
-
-// get the url to shorten - using mongoclient to connect to db allows me to push collections. I can see recently created urls in db.
+// get the url to shorten and save to db.
 
 MongoClient.connect(appUrl, function(err, db) {
 
- app.get('/new/:originalUrl(*)', function(req,res, next){
- 
-   var originalUrl = req.params.originalUrl; //get the info from entered url
-   
-   
-   //save collection/schema to db with original url and unique id
-     data = new shortUrl({
-     originalUrl:originalUrl,
-     shortenedUrl:shortID.generate(2)
-});
-    
-   data.save((err) => { 
-   
-     if(err){
-     console.log('ooops, sorry an error has occurred' + err);
+  app.get('/new/:originalUrl(*)', function(req, res, next) {
+
+    const originalUrl = req.params.originalUrl; 
+
+    //save collection to db 
+    const data = new shortUrl({
+      originalUrl: originalUrl,
+      shortenedUrl: shortID.generate(4)
+    });
+
+    data.save((err) => {
+
+      if (err) {
+        console.log('ooops, sorry an error has occurred' + err);
         res.send('error' + err)
-     }
-   });
-   // console.log("Connected successfully to server") ;
+      }
+    });
     return res.json(data);
 
-
-   
- });
   });
 
 
+  // query db and return the short url
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+  app.get('/:shortUrlId', function(req, res, next) {
+
+    var short = req.params.shortUrlId;
+    console.log(short, "hello");
+
+    shortUrl.findOne({
+      'shortenedUrl': short
+    }, (err, data) => {
+      // console.log(shortUrlFind);
+
+      if (err) {
+        res.send('Error reading db' + err);
+      } else {
+        var regex = new RegExp("^(http|https)://", "i"); //regex check's whether url's in db have http/s   
+        var strToCheck = data.originalUrl
+
+        if (regex.test(strToCheck)) { //if it does, just redirect to the original url
+          res.redirect(301, data.originalUrl);
+        } else {
+          return res.redirect(301, 'https//' + data.originalUrl); // if not, concatenate original url with https
+        }
+      }
+
+    });
+  });
+});
+
+
+http: //expressjs.com/en/starter/static-files.html
+  app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (request, response) {
+app.get("/", function(request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
 
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
+var listener = app.listen(process.env.PORT || 3000, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-
-
