@@ -1,0 +1,28 @@
+body {
+  font-family: helvetica, arial, sans-serif;
+  margin: 25px;
+  padding-top:25px;
+  font-size:1.1em; 
+}
+
+main{
+text-align:center;
+}
+
+h1 {
+  font-weight: bold;
+  color: pink;
+  border-bottom:1px solid pink;
+  text-align:center;
+}
+
+footer {
+  margin-top: 80px;
+  padding-top: 25px;
+  border-bottom: 1px solid lightgrey;
+}
+
+footer > a {
+  color: #BBBBBB;
+}
+

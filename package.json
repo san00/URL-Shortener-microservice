@@ -1,0 +1,27 @@
+{
+  "name": "url-shortener",
+  "version": "0.0.1",
+  "description": "A url shortener",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "mongoose": "^5.0.6",
+    "mongodb": "^3.0.2",
+    "short-id-gen": "^1.1.2"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "url": "https://github.com/san00/URL-Shortener-microservice"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
